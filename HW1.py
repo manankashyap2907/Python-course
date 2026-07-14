@@ -1,6 +1,6 @@
 print("First I wake up")
 print("I then go to the toilet and freshen up.")
-print("On weekdays, I then change ito my school uniform and eat breakfast.")
+print("On weekdays, I then change into my school uniform and eat breakfast.")
 print("After that, I leave at 7:55 for school and reach back home at 3:15.")
 print("Then I change to normal clothes and eat my lunch.")
 print("From 4:30 to 6:00 I normally study unless I have sport activites or classes.")
