@@ -1,0 +1,5 @@
+print("Hello Python")
+print(12345)
+print("Hi", 21)
+print("hehehahaha \n")
+print("I like reading books, ", end= "I play badminton as well!")

@@ -1,3 +1,4 @@
+print("Hello, this is my weekday daily routin")
 print("First I wake up")
 print("I then go to the toilet and freshen up.")
 print("On weekdays, I then change into my school uniform and eat breakfast.")
