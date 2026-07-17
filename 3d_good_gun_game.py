@@ -1,8 +1,6 @@
-print("Starting 3D Gun Game...")
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 import random
-import math
 
 app = Ursina()
 
@@ -42,7 +40,13 @@ gun_barrel = Entity(
     position=(0, 0, 0.6)
 )
 
-crosshair = Text(text="+", origin=(0, 0), scale=2, color=color.white, position=(0, 0))
+crosshair = Text(
+    text="+",
+    origin=(0, 0),
+    scale=2,
+    color=color.white,
+    position=(0, 0)
+)
 
 score = 0
 health = 100
@@ -50,8 +54,18 @@ game_finished = False
 enemies = []
 
 score_text = Text(text="Score: 0", position=(-0.85, 0.45), scale=1.5)
-health_text = Text(text="Health: 100", position=(-0.85, 0.39), scale=1.5, color=color.red)
-enemy_text = Text(text="Enemies: 0", position=(-0.85, 0.33), scale=1.5, color=color.yellow)
+health_text = Text(
+    text="Health: 100",
+    position=(-0.85, 0.39),
+    scale=1.5,
+    color=color.red
+)
+enemy_text = Text(
+    text="Enemies: 0",
+    position=(-0.85, 0.33),
+    scale=1.5,
+    color=color.yellow
+)
 
 
 def update_enemy_text():
@@ -62,30 +76,75 @@ def spawn_enemy():
     x = random.choice([-1, 1]) * random.randint(8, 18)
     z = random.choice([-1, 1]) * random.randint(8, 18)
 
+    # Main body: this is also the part that can be shot.
     enemy = Entity(
         model="cube",
         color=color.red,
-        scale=(2, 3, 2),
+        scale=(1.3, 2, 0.7),
         position=(x, 1.5, z),
         collider="box"
     )
 
     enemy.health = 3
 
-    eye = Entity(
+    # Head
+    Entity(
         parent=enemy,
         model="sphere",
-        color=color.white,
-        scale=(0.25, 0.25, 0.25),
-        position=(0.35, 0.3, -0.55)
+        color=color.rgb(255, 190, 150),
+        scale=(0.65, 0.55, 0.65),
+        position=(0, 0.9, 0)
     )
 
-    eye2 = Entity(
+    # Arms
+    Entity(
+        parent=enemy,
+        model="cube",
+        color=color.red,
+        scale=(0.3, 0.8, 0.35),
+        position=(-0.75, 0, 0)
+    )
+
+    Entity(
+        parent=enemy,
+        model="cube",
+        color=color.red,
+        scale=(0.3, 0.8, 0.35),
+        position=(0.75, 0, 0)
+    )
+
+    # Legs
+    Entity(
+        parent=enemy,
+        model="cube",
+        color=color.dark_gray,
+        scale=(0.35, 0.85, 0.4),
+        position=(-0.35, -1.25, 0)
+    )
+
+    Entity(
+        parent=enemy,
+        model="cube",
+        color=color.dark_gray,
+        scale=(0.35, 0.85, 0.4),
+        position=(0.35, -1.25, 0)
+    )
+
+    # Eyes
+    Entity(
         parent=enemy,
         model="sphere",
         color=color.white,
-        scale=(0.25, 0.25, 0.25),
-        position=(-0.35, 0.3, -0.55)
+        scale=0.18,
+        position=(-0.22, 1.0, -0.42)
+    )
+
+    Entity(
+        parent=enemy,
+        model="sphere",
+        color=color.white,
+        scale=0.18,
+        position=(0.22, 1.0, -0.42)
     )
 
     enemies.append(enemy)
@@ -98,6 +157,11 @@ for i in range(6):
 
 def reset_gun():
     gun.position = (0.45, -0.35, 0.75)
+
+
+def reset_enemy_colour(enemy):
+    if enemy:
+        enemy.color = color.red
 
 
 def shoot():
@@ -117,15 +181,18 @@ def shoot():
     )
 
     if hit.hit and hit.entity in enemies:
-        hit.entity.health -= 1
-        hit.entity.color = color.orange
-        invoke(setattr, hit.entity, "color", color.red, delay=0.1)
+        enemy = hit.entity
+        enemy.health -= 1
+        enemy.color = color.orange
+        invoke(reset_enemy_colour, enemy, delay=0.1)
 
-        if hit.entity.health <= 0:
-            enemies.remove(hit.entity)
-            destroy(hit.entity)
+        if enemy.health <= 0:
+            enemies.remove(enemy)
+            destroy(enemy)
+
             score += 1
             score_text.text = f"Score: {score}"
+
             update_enemy_text()
             spawn_enemy()
 
@@ -140,8 +207,21 @@ def game_over():
     mouse.locked = False
     player.enabled = False
 
-    Text(text="GAME OVER", origin=(0, 0), scale=4, color=color.red, background=True)
-    Text(text="Press ESC to quit", origin=(0, 0), y=-0.1, scale=1.5, color=color.white)
+    Text(
+        text="GAME OVER",
+        origin=(0, 0),
+        scale=4,
+        color=color.red,
+        background=True
+    )
+
+    Text(
+        text="Press ESC to quit",
+        origin=(0, 0),
+        y=-0.1,
+        scale=1.5,
+        color=color.white
+    )
 
 
 def update():
@@ -157,6 +237,7 @@ def update():
         if distance > 2:
             enemy.position += direction.normalized() * time.dt * 2.5
             enemy.look_at(player.position)
+
         else:
             health -= 12 * time.dt
             health_text.text = f"Health: {int(health)}"
